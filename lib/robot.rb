@@ -1,5 +1,3 @@
-require 'pry'
-
 class Robot
   MAX_WEIGHT = 250
   MAX_HEALTH = 100
@@ -10,8 +8,8 @@ class Robot
 
   @@robots = []
 
-  attr_reader :position, :items, :items_weight, :health, :equipped_weapon, :robot_positions, :nearby_robots
-  attr_accessor :shield_points
+  attr_reader :position, :items, :items_weight, :health, :robot_positions, :nearby_robots
+  attr_accessor :shield_points, :equipped_weapon
 
   def initialize
     @position = [0,0]
@@ -62,7 +60,6 @@ class Robot
     else
       @health -= reduced_attack
     end
-  
   end
 
   def heal(heal_points)
@@ -74,30 +71,18 @@ class Robot
   end
 
   def attack(enemy_robot)
-    if @equipped_weapon.is_a?(Grenade)
-      @equipped_weapon.hit(enemy_robot) if grenade_range?(enemy_robot)
-      self.equipped_weapon = nil
-    end
-
-    if @equipped_weapon.is_a?(SpecialWeapon) 
-      scan_nearby
-
-      @nearby_robots.each do |robot|
-        robot.shield_points = 0
-        @equipped_weapon.hit(robot)
+    if @equipped_weapon
+      if @equipped_weapon.is_a?(Grenade)
+        @equipped_weapon.hit(enemy_robot) if grenade_range?(enemy_robot)
+        self.equipped_weapon = nil
+      elsif @equipped_weapon.is_a?(SpecialWeapon) 
+        special_attack
+      else
+        @equipped_weapon.hit(enemy_robot)
       end
-
-      self.shield_points = 0
-      self.wound(@equipped_weapon.damage)
-      return
-    end
-
-    @equipped_weapon.hit(enemy_robot) if @equipped_weapon
-    enemy_robot.wound(DEFAULT_ATTACK) if melee_positions?(enemy_robot)
-  end 
-
-  def equipped_weapon=(weapon)
-    @equipped_weapon = weapon     
+    elsif melee_positions?(enemy_robot)
+      enemy_robot.wound(DEFAULT_ATTACK)
+    end 
   end 
 
   def robot_list
@@ -177,6 +162,18 @@ class Robot
     return true if (enemy_x_position - my_x_position) == MOVE_SPEED
     return false
   end
+
+  def special_attack
+    scan_nearby
+
+    @nearby_robots.each do |robot|
+      robot.shield_points = 0
+      @equipped_weapon.hit(robot)
+    end
+
+    self.shield_points = 0
+    self.wound(@equipped_weapon.damage)
+  end
 end
 
 class Item
@@ -201,7 +198,6 @@ class BoxOfBolts < Item
 end
 
 class Batteries < Item
-
   def initialize
     super("Batteries", 25)
   end
@@ -209,11 +205,9 @@ class Batteries < Item
   def recharge_shield(robot)
     robot.shield_points = 50 
   end
-
 end
 
 class Weapon < Item
-
   attr_reader :damage, :range
 
   def initialize(name, weight, damage=45, range=nil)

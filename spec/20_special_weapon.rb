@@ -32,20 +32,12 @@ describe Robot do
       @robot1.pick_up(@nuke)
       @robot2.move_right
       @robot3.move_down
-      # @robot1.scan_nearby
       @robot1.attack(@robot2)
 
-      expect(@robot1.equipped_weapon).to be_a(SpecialWeapon)
-      expect(@robot1.nearby_robots.include?(@robot2)).to eq(true)
-      expect(@robot1.nearby_robots.include?(@robot3)).to eq(true)
       expect(@robot1.health).to eq(70)
       expect(@robot2.health).to eq(70)
       expect(@robot3.health).to eq(70)
     end
-
-
-
   end
-
 end
 
