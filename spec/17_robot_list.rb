@@ -12,8 +12,10 @@ describe Robot do
   describe "#robot_list" do
 
     it "can keep track of all Robots" do
-      expect(@terminator.robot_list.size).to eq(50)
+      expect(@terminator.robot_list.include?(@terminator)).to eq(true)
       expect(@terminator.robot_list.include?(@wall_e)).to eq(true)
+      expect(@terminator.robot_list.include?(@commander_data)).to eq(true)
+      expect(@terminator.robot_list.include?(@skynet)).to eq(true)
     end
   end
 

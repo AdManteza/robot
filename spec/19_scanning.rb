@@ -11,6 +11,7 @@ describe Robot do
 
       @robot2.instance_variable_set("@position", [1,0])
       @robot3.instance_variable_set("@position", [0,1])
+      @robot4.instance_variable_set("@position", [5,5])
       @robot1.scan_nearby
 
       expect(@robot1.nearby_robots.include?(@robot4)).to eq(false)

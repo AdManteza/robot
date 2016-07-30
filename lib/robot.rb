@@ -79,6 +79,19 @@ class Robot
       self.equipped_weapon = nil
     end
 
+    if @equipped_weapon.is_a?(SpecialWeapon) 
+      scan_nearby
+
+      @nearby_robots.each do |robot|
+        robot.shield_points = 0
+        @equipped_weapon.hit(robot)
+      end
+
+      self.shield_points = 0
+      self.wound(@equipped_weapon.damage)
+      return
+    end
+
     @equipped_weapon.hit(enemy_robot) if @equipped_weapon
     enemy_robot.wound(DEFAULT_ATTACK) if melee_positions?(enemy_robot)
   end 
@@ -153,6 +166,7 @@ class Robot
 
     return true if (enemy_y_position - my_y_position) == -MOVE_SPEED
     return true if (enemy_y_position - my_y_position) == MOVE_SPEED
+    return false
   end
 
   def nearby_x_position?(enemy_robot)
@@ -161,6 +175,7 @@ class Robot
 
     return true if (enemy_x_position - my_x_position) == -MOVE_SPEED
     return true if (enemy_x_position - my_x_position) == MOVE_SPEED
+    return false
   end
 end
 
@@ -230,7 +245,11 @@ class Grenade < Weapon
   end
 end
 
-
+class SpecialWeapon < Weapon
+  def initialize
+    super('NukeMe', 300, 30, 1)
+  end
+end
 
 
 
